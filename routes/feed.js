@@ -4,7 +4,7 @@ const { body } = require("express-validator");
 
 const router = express.Router();
 
-router.get("/posts", feedController.getPost);
+router.get("/posts", feedController.getPosts);
 router.post(
   "/post",
   [
@@ -13,4 +13,5 @@ router.post(
   ],
   feedController.postPost
 );
+router.get("/posts/:postId", feedController.getpost);
 module.exports = router;

@@ -1,29 +1,26 @@
 const { validationResult } = require("express-validator");
 const Post = require("../models/post");
-exports.getPost = (req, res, next) => {
-  res.status(200).json({
-    posts: [
-      {
-        _id: "1",
-        title: "first",
-        content: "first book writen",
-        imageUrl: "images/feqerte.png",
-        creator: {
-          name: "teda",
-        },
-        createdAt: new Date(),
-      },
-    ],
-  });
+exports.getPosts = (req, res, next) => {
+  Post.find()
+    .then((posts) => {
+      res.status(200).json({
+        posts: posts,
+      });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.status = 500;
+      }
+      next(err);
+    });
 };
 exports.postPost = (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(422).json({
-      message: "validation is failed ,entered incorrecte data",
-      errors: errors.array(),
-    });
+    const error = new Error("validation is failed ,entered incorrecte data");
+    error.statusCode = 422;
+    throw error;
   }
   const title = req.body.title;
   const content = req.body.content;
@@ -41,5 +38,25 @@ exports.postPost = (req, res, next) => {
         post: post,
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.status = 500;
+      }
+      next(err);
+    });
+};
+exports.getpost = (req, res, next) => {
+  const postId = req.params.postId;
+  Post.findById(postId)
+    .then((post) => {
+      res.status(200).json({
+        post: post,
+      });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.status = 500;
+      }
+      next(err);
+    });
 };
