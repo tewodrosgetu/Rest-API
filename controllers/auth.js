@@ -1,5 +1,6 @@
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 
 exports.signUp = (req, res, next) => {
@@ -25,6 +26,45 @@ exports.signUp = (req, res, next) => {
     })
     .then((result) => {
       res.status(201).json({ message: "user created", userId: result._id });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.status = 500;
+      }
+      next(err);
+    });
+};
+exports.login = (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  let loadesuser;
+  User.findOne({ email: email })
+    .then((user) => {
+      if (!user) {
+        const error = new Error("user not found");
+        error.statuseCode = 401;
+        // error.data = errors.array();
+        throw error;
+      }
+      loadesuser = user;
+      return bcrypt.compare(password, user.password);
+    })
+    .then((equal) => {
+      if (!equal) {
+        const error = new Error("password not correct");
+        error.statuseCode = 401;
+        // error.data = errors.array();
+        throw error;
+      }
+      const token = jwt.sign(
+        {
+          email: loadesuser.email,
+          userId: loadesuser._id.toString(),
+        },
+        "teda1221kal",
+        { expiresIn: "1h" }
+      );
+      res.status(200).json({ token: token, userId: loadesuser._id.toString() });
     })
     .catch((err) => {
       if (!err.statusCode) {
