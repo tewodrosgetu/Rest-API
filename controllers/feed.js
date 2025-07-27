@@ -3,10 +3,22 @@ const fs = require("fs");
 const path = require("path");
 const Post = require("../models/post");
 exports.getPosts = (req, res, next) => {
+  const currentpage = req.query.page || 1;
+  const perPage = 2;
+  let totalItems;
   Post.find()
+    .countDocuments()
+    .then((coutn) => {
+      totalItems = coutn;
+      return Post.find()
+        .skip((currentpage - 1) * perPage)
+        .limit(perPage);
+    })
     .then((posts) => {
       res.status(200).json({
+        message: "poste fecthed successfuly",
         posts: posts,
+        totalItems: totalItems,
       });
     })
     .catch((err) => {
@@ -128,7 +140,6 @@ exports.deletePost = (req, res, next) => {
       return Post.findByIdAndDelete(postId);
     })
     .then((result) => {
-      console.log(result);
       res.status(200).json({ message: "deleted sucessful" });
     })
     .catch((err) => {
