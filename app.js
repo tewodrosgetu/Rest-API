@@ -46,7 +46,8 @@ app.use("/auth", authRoutes);
 app.use((error, req, res, next) => {
   const status = error.statusCode;
   const message = error.message;
-  res.status(status).json({ message: message });
+  const data = error.data;
+  res.status(status).json({ message: message, data: data });
 });
 mongoose
   .connect("mongodb://127.0.0.1:27017/message")
