@@ -43,7 +43,6 @@ exports.login = (req, res, next) => {
       if (!user) {
         const error = new Error("user not found");
         error.statuseCode = 401;
-        // error.data = errors.array();
         throw error;
       }
       loadesuser = user;
