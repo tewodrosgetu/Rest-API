@@ -34,15 +34,19 @@ app.use(bodyparser.json());
 app.use(
   multer({ storage: filestorage, fileFilter: fileFilter }).single("image")
 );
+
 app.use("/images", express.static(path.join(__dirname, "images")));
+
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Method", "GET,POST,PATCH,PUT,DELETE");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
   next();
 });
+
 app.use("/feed", feedRoutes);
 app.use("/auth", authRoutes);
+
 app.use((error, req, res, next) => {
   const status = error.statusCode;
   const message = error.message;
@@ -52,6 +56,10 @@ app.use((error, req, res, next) => {
 mongoose
   .connect("mongodb://127.0.0.1:27017/message")
   .then((result) => {
-    app.listen(5000);
+    const server = app.listen(5000);
+    console.log("mogodb connected connected");
+    const io = require("./socket").init(server);
+    io.on("connection", (socket) => {});
+    console.log("client connected");
   })
-  .catch((eerr) => console.log(err));
+  .catch((err) => console.log(err));

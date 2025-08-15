@@ -3,6 +3,8 @@ const fs = require("fs");
 const path = require("path");
 const Post = require("../models/post");
 const User = require("../models/user");
+const io = require("../socket");
+
 exports.getPosts = async (req, res, next) => {
   const currentpage = req.query.page || 1;
   const perPage = 2;
@@ -52,7 +54,7 @@ exports.postPost = async (req, res, next) => {
 
     user.posts.push(post);
     await user.save();
-
+    io.getIo().emit("posts", { action: "create", post: post });
     res.status(201).json({
       message: "post created successfuly!",
       post: post,
